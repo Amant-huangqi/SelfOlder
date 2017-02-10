@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.selforder.Dao.CashRegisterDao">
+
+	<!-- 初始化收银界面 -->
+	<select id="CashRegister" resultType="com.selforder.Model.CashRegisterModel">
+		select * from tablea
+	</select>
+
+	<!--得到每一桌点菜的具体信息 -->
+	<select id="getTableData" resultType="com.selforder.Model.TableModel">
+		SELECT T.*,M.price
+		FROM
+		tabledish T,menu M
+		WHERE (T.dishes = M.dishes) AND (tablenumber =
+		#{tablenumber})
+	</select>
+
+	<!--未支付的餐桌进行支付 -->
+	<insert id="CashPay" parameterType="com.selforder.Model.TurnoverModel">
+		INSERT INTO
+		turnover(turnover,date)
+		VALUES(#{turnover},#{date})
+	</insert>
+
+	<!--得到支付状态 -->
+	<select id="getPaymentstatus" resultType="String">
+		select paymentstatus
+		from tablea WHERE tablenumber = #{tablenumber}
+	</select>
+
+	<!--得到菜的状态 -->
+	<select id="getDishstatus" resultType="String">
+		select dishstatus from
+		tabledish WHERE tablenumber = #{tablenumber}
+	</select>
+
+	<!-- 重置table表中的数据 -->
+	<delete id="RestartTable" parameterType="String">
+		DELETE FROM tablea WHERE
+		tablenumber = #{tablenumber}
+	</delete>
+
+	<!-- 重置tabledish表中的数据 -->
+	<delete id="tabledish" parameterType="String">
+		DELETE FROM tabledish WHERE
+		tablenumber = #{tablenumber}
+	</delete>
+
+	<!-- 修改支付状态 -->
+	<update id="changePaymentstatus" parameterType="com.selforder.Model.TableModel">
+		update tablea
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="paymentstatus != null and paymentstatus != ''">paymentstatus=#{paymentstatus}</if>
+		</trim>
+		WHERE tablenumber=#{tablenumber}
+	</update>
+
+	<!--tablea表修改桌号 -->
+	<update id="changeTableNumber" parameterType="String">
+		update tablea
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="tablenumber != null and tablenumber != ''">tablenumber=#{newtablenumber}</if>
+		</trim>
+		WHERE tablenumber=#{tablenumber}
+	</update>
+
+	<!--tabledish表修改桌号 -->
+	<update id="changeTableNumber1" parameterType="String">
+		update tabledish
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="tablenumber != null and tablenumber != ''">tablenumber=#{newtablenumber}</if>
+		</trim>
+		WHERE tablenumber=#{tablenumber}
+	</update>
+
+	<!--得到总额 -->
+	<select id="getTotal" resultType="String">
+		select total
+		from tablea WHERE
+		tablenumber = #{tablenumber}
+	</select>
+
+	<!--轮训检查需求信息 -->
+	<select id="needCall" resultType="String">
+		select tablenumber from tablea where callserving = #{callserving}
+	</select>
+
+</mapper>

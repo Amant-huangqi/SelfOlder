@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.selforder.Dao.AppDao">
+
+	<!-- 得到普通菜的数据 -->
+	<select id="sendData1" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+	</select>
+	
+	<!-- 得到家常菜数据 -->
+	<select id="sendDataHomeCooking" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '家常菜')
+	</select>
+	
+	<!-- 得到凉菜数据 -->
+	<select id="sendDataColdDish" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '凉菜')
+	</select>
+	
+	<!-- 得到面食数据 -->
+	<select id="sendDataPasta" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '面食')
+	</select>
+	
+	<!-- 得到热菜数据 -->
+	<select id="sendDataHot" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '热菜')
+	</select>
+	
+	<!-- 得到粥数据 -->
+	<select id="sendDataGruel" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '粥')
+	</select>
+	
+	<!-- 得到饮料数据 -->
+	<select id="sendDrink" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.sort = '饮料')
+	</select>
+
+	<!-- 得到特色菜的数据 -->
+	<select id="sendData2" resultType="com.selforder.Model.AppModel">
+		SELECT T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE (T.dishes = M.dishes) AND (T.characteristic = '1')
+	</select>
+
+
+	<!-- 实时得到每一桌菜的状态 -->
+	<select id="sendDishStatus" resultType="com.selforder.Model.TableModel">
+		select * from tabledish WHERE tablenumber = #{tablenumber}
+	</select>
+
+	<!-- 添加table表数据 -->
+	<insert id="addData" parameterType="String">
+		INSERT INTO
+		tablea(tablenumber, paymentstatus,total,starttime,invoice)
+		VALUES(#{tablenumber1},#{paymentstatus},#{total},#{date},#{invoice})
+		
+	</insert>
+	
+	<!-- 添加每一桌菜的数据-->
+	<insert id="addData1" parameterType="String">
+		INSERT INTO
+		tabledish(tablenumber, dishes,amount,dishstatus,date,paymentstatus)
+		VALUES(#{tablenumber2},#{dishes},#{amount},#{dishstatus},#{date},#{paymentstatus})
+	</insert>
+	
+	
+	<!-- 添加评价信息-->
+	<update id="addData2" parameterType="int">
+		UPDATE menu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="assess != null and assess != ''">assess=assess+#{assess},</if>
+			<if test="assessfrequency != null and assessfrequency != ''">assessfrequency=assessfrequency+#{assessfrequency}</if>
+		</trim>
+		WHERE dishes = #{dishes}
+	</update>
+	
+	<!-- 得到正在使用的餐桌号 -->
+	<select id="getTablenumber" resultType="string">
+		select tablenumber from tablea 
+		
+	</select>
+	
+	<!-- 判断这个菜是不是已经存在 -->
+	<select id="getDishesAmount" resultType="string">
+		select amount from tabledish  WHERE tablenumber = #{tablenumber} and dishes = #{dishes}
+	</select>
+	
+	<!--菜品不存在 新添加-->
+	<insert id="addDishes" parameterType="String">
+		INSERT INTO
+		tabledish(tablenumber, dishes,amount,dishstatus,date)
+		VALUES(#{tablenumber2},#{dishes},#{amount},#{dishstatus},#{date})
+	</insert>
+	
+	<!--菜品存在 更新数量-->
+	<update id="updataAmount" parameterType="String">
+		UPDATE tabledish
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="amount != null and amount != ''">amount=#{amount}</if>
+		</trim>
+		WHERE tablenumber = #{tablenumber} and dishes = #{dishes}
+	</update>
+	
+	<!--添加菜品时修改支付状态-->
+	<update id="addDishesChangePaymentstatus" parameterType="String">
+		UPDATE tablea
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="paymentstatus != null and paymentstatus != ''">paymentstatus=#{paymentstatus}</if>
+		</trim>
+		WHERE tablenumber = #{tablenumber} 
+	</update>
+	
+	<!--轮训检查需求信息-->
+	<update id="needAppCall" parameterType="String">
+		UPDATE tablea
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="callserving != null and callserving != ''">callserving=#{callserving}</if>
+		</trim>
+		WHERE tablenumber = #{tablenumber} 
+	</update>
+</mapper>

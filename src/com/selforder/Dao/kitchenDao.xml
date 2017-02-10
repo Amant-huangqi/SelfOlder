@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.selforder.Dao.kitchenDao">
+
+	<!-- 得到桌号 -->
+	<select id="getTablenumber" resultType="String">
+		select tablenumber from tablea 
+	</select>
+	
+	<!-- 根据桌号得到每一桌的菜 -->
+	<select id="getTableDishes" resultType="com.selforder.Model.TableModel">
+		select * from tabledish WHERE tablenumber = #{tablenumber}
+	</select>
+	
+	<!-- 得到每一种菜的数量 -->
+	<select id="getDishesNumber" resultType="String">
+		select tablenumber from tablea WHERE dishes = #{dishes}
+	</select>
+	
+	<!-- 修改某一桌菜做的状态-->
+	<update id="changeDishstatus" parameterType="String">
+		UPDATE tabledish
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="dishstatus != null and dishstatus != ''">dishstatus=#{dishstatus}</if>
+		</trim>
+		WHERE tablenumber = #{tablenumber} and dishes = #{dishes}
+	</update>
+	
+	<!-- 根据桌号得到每一桌完成菜的数量-->
+	<select id="carryOutNumber" resultType="String">
+		select * from tabledish WHERE tablenumber = #{tablenumber} and dishstatus = '2'
+	</select>
+	
+	<!-- 得到今日菜单的所有菜名-->
+	<select id="getTodayMenuDishes" resultType="String">
+		select dishes from todaymenu 
+	</select>
+	
+	<!-- 根据菜名得到点菜的数量-->
+	<select id="getNumber" resultType="com.selforder.Model.TableModel">
+		select tablenumber,amount,dishstatus from tabledish WHERE dishes = #{dishes} and dishstatus != '2' 
+	</select>
+	
+	<!-- 根据菜名得到点菜的数量-->
+	<select id="getTime" resultType="String">
+		select starttime from tablea WHERE tablenumber = #{tablenumber} 
+	</select>
+
+</mapper>

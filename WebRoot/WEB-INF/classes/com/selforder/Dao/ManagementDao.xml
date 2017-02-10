@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.selforder.Dao.ManagementDao">
+
+	<!-- 得到总菜单的数据 -->
+	<select id="getMenu" resultType="com.selforder.Model.MenuModel">
+		select
+		* from menu
+	</select>
+
+	<!-- 得到今日菜单的数据 -->
+	<select id="getgetTodayMenu" resultType="com.selforder.Model.MenuModel">
+		SELECT
+		T.*,M.image,M.assess,M.assessfrequency
+		FROM todaymenu T,menu M
+		WHERE
+		(T.dishes = M.dishes)
+	</select>
+
+	<!-- 更新今日菜单 -->
+	<insert id="UpdataManagement" parameterType="String">
+		INSERT INTO
+		todaymenu(sort, dishes,price,characteristic)
+		VALUES(#{sort},#{dishes},#{price},#{characteristic})
+
+	</insert>
+
+	<!-- 报表所需的菜评价信息 -->
+	<select id="getDishesAssess" resultType="com.selforder.Model.MenuModel">
+		select
+		dishes,assess,assessfrequency from menu WHERE sort = #{sort}
+	</select>
+
+	<!-- 根据月份得到营业额 -->
+	<select id="getTurnover" resultType="int">
+		select turnover from turnover
+		<where>
+			<if test="startfiletime != null and startfiletime != ''">
+				AND date &gt; #{startfiletime}
+			</if>
+			<if test="endfiletime != null and endfiletime != ''">
+				AND date &lt; #{endfiletime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 得到今天的营业额 -->
+	<select id="getTodayTurnover" resultType="int">
+		select turnover from turnover
+		<where>
+			<if test="startfiletime != null and startfiletime != ''">
+				AND date &gt; #{startfiletime}
+			</if>
+			<if test="endfiletime != null and endfiletime != ''">
+				AND date &lt; #{endfiletime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 删除原有菜单 -->
+	<delete id="delectAllManagement" parameterType="int">
+		DELETE FROM
+		todaymenu
+	</delete>
+
+	<!-- 添加菜单 -->
+	<insert id="addMenu" parameterType="String">
+		INSERT INTO
+		menu(sort,
+		dishes,price,image,characteristic,assess,assessfrequency)
+		VALUES(#{sort},#{dishes},#{price},#{image},#{characteristic},0,0)
+
+	</insert>
+
+	<!-- 删除菜单 -->
+	<delete id="delectManagement" parameterType="int">
+		DELETE FROM menu
+		WHERE id = #{id}
+	</delete>
+
+	<!-- 修改菜单 -->
+	<update id="updataMenu" parameterType="com.selforder.Model.MenuModel">
+		UPDATE menu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="sort != null and sort != ''">sort=#{sort},</if>
+			<if test="dishes != null and dishes != ''">dishes=#{dishes},</if>
+			<if test="price != null and price != ''">price=#{price},</if>
+			<if test="image != null and image != ''">image=#{image},</if>
+			<if test="characteristic != null and characteristic != ''">characteristic=#{characteristic}</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<!-- 得到图片URL -->
+	<select id="getImgView" resultType="String">
+		select image from menu WHERE
+		id = #{id}
+	</select>
+
+	<!-- 提交图片 -->
+	<update id="SubmitImg" parameterType="com.selforder.Model.MenuModel">
+		UPDATE menu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="image != null and image != ''">image=#{image}</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<!--得到座位信息 -->
+	<select id="getTableData" resultType="com.selforder.Model.CashRegisterModel">
+		select * from tablea
+	</select>
+
+	<!-- 提交图片 -->
+	<update id="changeCharacteristic" parameterType="String">
+		UPDATE todaymenu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="characteristic != null and characteristic != ''">characteristic=#{characteristic}</if>
+		</trim>
+		WHERE dishes = #{dishes}
+	</update>
+
+	<!-- 添加用户信息 -->
+	<insert id="addUser" parameterType="String">
+		INSERT INTO
+		users(username,
+		password,permission)
+		VALUES(#{username},#{password},#{permission})
+
+	</insert>
+	
+	<!-- 添加用户权限 -->
+	<insert id="addUserPermission" parameterType="String">
+		INSERT INTO
+		roles_permissions(role_name,
+		permission)
+		VALUES(#{role_name},#{permission})
+
+	</insert>
+	
+	<!-- 删除用户-->
+	<delete id="deleteUser" parameterType="int">
+		DELETE FROM users
+		WHERE id = #{id}
+	</delete>
+	
+	<!-- 删除用户权限-->
+	<delete id="deleteUserPermission" parameterType="int">
+		DELETE FROM roles_permissions
+		WHERE id = #{id}
+	</delete>
+	
+	<!-- 更新用户 -->
+	<update id="UpdataUser" parameterType="String">
+		UPDATE users
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="username != null and username != ''">username=#{username},</if>
+			<if test="password != null and password != ''">password=#{password},</if>
+			<if test="permission != null and permission != ''">permission=#{permission}</if>
+		</trim>
+		WHERE username = #{username}
+	</update>
+	
+	<!-- 更新用户权限 -->
+	<update id="UpdataUserPermission" parameterType="String">
+		UPDATE roles_permissions
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="role_name != null and role_name != ''">role_name=#{role_name},</if>
+			<if test="permission != null and permission != ''">permission=#{permission}</if>
+		</trim>
+		WHERE role_name = #{role_name}
+	</update>
+	
+	<!-- 初始化用户管理页面 -->
+	<select id="getUser" resultType="com.selforder.Model.Users">
+		select * from users 
+	</select>
+	
+	<!-- 得到座位情况-->
+	<select id="getTableNumber" resultType="String">
+		select tablenumber from tablea 
+	</select>
+	
+	<!-- 修改菜单 -->
+	<update id="changeAddToday" parameterType="String">
+		UPDATE menu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="addToday != null and addToday != ''">addToday=#{addToday}</if>
+		</trim>
+		WHERE dishes = #{dishes}
+	</update>
+	
+	<!-- 修改菜单 初始化-->
+	<update id="changeAddTodayInitialization" parameterType="String">
+		UPDATE menu
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="addToday != null and addToday != ''">addToday=#{addToday}</if>
+		</trim>
+		WHERE addToday = '1'
+	</update>
+
+</mapper>
